@@ -169,3 +169,17 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# genomic test files
+.bam
+.sizes
+.bed
+.bai
+
+# working directories
+work/
+assets/
+results/
+.nextflow/
+
+.nextflow.log.*
