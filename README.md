@@ -2,9 +2,11 @@
 A simple nextflow pipeline for calling peaks and producing tracks from ChIP-seq data.
 
 ## Description
-Given a single ChIP and a single Input BAM files, `peakflow` produces coverage tracks for ChIP, Input, and ChIP/Input ratio, as well as calls peaks with MACS2.
+Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment size and calls peaks with MACS2 and produces coverage tracks for ChIP, Input, and ChIP/Input ratio with deepTools.
 
 Coverage tracks are binned according to a specified bin size and have reads extended to an estimated fragment size.
+
+BAM files are treated as single-end ones, even if they are paired-end.
 
 ## Input
 The pipeline requires two kinds of inputs: read alignment files (BAM/BAI) and parameters. Paths to read alignment files are specified in `samplesheet.csv`.
