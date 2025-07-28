@@ -2,11 +2,7 @@
 A simple nextflow pipeline for calling peaks and producing tracks from ChIP-seq data.
 
 ## Description
-Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment size and calls peaks with MACS2 and produces coverage tracks for ChIP, Input, and ChIP/Input ratio with deepTools.
-
-Coverage tracks are binned according to a specified bin size and have reads extended to an estimated fragment size.
-
-BAM files are treated as single-end ones, even if they are paired-end.
+Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment size and calls peaks with MACS2 and produces coverage tracks for ChIP, Input, and ChIP/Input ratio with deepTools. Coverage tracks are binned according to a specified bin size and have reads extended to an estimated fragment size. BAM files are treated as single-end ones, even if they are paired-end.
 
 ## Input
 The pipeline requires two kinds of inputs: read alignment files (BAM/BAI) and parameters. Paths to read alignment files are specified in `samplesheet.csv`.
@@ -25,21 +21,18 @@ input,/path/to/input.bam
 
 ### Parameters
 The pipeline has the following parameters:
-1. `samplesheet`: path to `samplesheet.csv`.
-2. `blacklist`: path to the blacklist bed file.
-3. `binsize`: size of bins for coverage tracks.
-4. `outdir`: path to the output directory.
 
-Parameters are supplied as a json file. An example can be found at `params.json`:
+| Name        | Type            | Default value                      | Description                                        |
+|-------------|-----------------|------------------------------------|----------------------------------------------------|
+| samplesheet | file path (csv) | `"./samplesheet.csv"`              | Path to the samplesheet                            |
+| blacklist   | file path (bed) | `"./assets/hg19-blacklist.v2.bed"` | Path to the blacklist file                         |
+| outdir      | file path       | `"./results"`                      | Path to the output directory                       |
+| prefix      | string          | `"sample"`                         | Filename prefix to start output files with         |
+| binsize     | integer         | `1000`                             | Size of bins for coverage tracks                   |
+| callpeaks   | boolean         | `true`                             | Whether to call peaks or not                       |
+| extreads    | boolean         | `true`                             | Whether to extend reads for coverage tracks or not |
 
-```
-{
-    "samplesheet": "./samplesheet.csv",
-    "blacklist": "./assets/hg19-blacklist.v2.bed",
-    "binsize": 1000,
-    "outdir": "./results"
-}
-```
+Parameters are supplied as a json file. An example can be found at `params.json`.
 
 ## How to run
 TBD

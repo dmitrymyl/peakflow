@@ -1,6 +1,9 @@
 {
     "samplesheet": "./samplesheet.csv",
     "blacklist": "./assets/hg19-blacklist.v2.bed",
+    "outdir": "./results",
+    "prefix": "sample",
     "binsize": 1000,
-    "outdir": "./results"
+    "callpeaks": true,
+    "extreads": true
 }

@@ -182,6 +182,7 @@ assets/
 results/
 .nextflow/
 subresults/
+results2/
 sub.nf
 
 .nextflow.log.*

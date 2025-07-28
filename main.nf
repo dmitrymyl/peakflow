@@ -23,13 +23,14 @@ process getFragmentSize {
 
     input:
         path model_script
+        val prefix
     output:
-        path 'fragment_size.txt'
+        path "${prefix}.fragment_size.txt"
         stdout emit: fragment_size
     script:
     """
-    parse_model_script.py $model_script > fragment_size.txt
-    cat fragment_size.txt
+    parse_model_script.py $model_script > ${prefix}.fragment_size.txt
+    cat ${prefix}.fragment_size.txt
     """
 }
 
@@ -40,12 +41,13 @@ process plotPeakModel {
     
     input:
         path model_script
+        val prefix
     output:
-        path 'model.pdf'
+        path "${prefix}.model.pdf"
     script:
     """
     Rscript $model_script
-    mv ${model_script}_model.pdf model.pdf
+    mv ${model_script}_model.pdf ${prefix}.model.pdf
     """
 }
 
@@ -57,12 +59,13 @@ process callPeaks {
     input:
         path chip_bam
         path input_bam
+        val prefix
     output:
-        path 'peaks.narrowPeak'
+        path "${prefix}.peaks.narrowPeak"
     script:
     """
     macs2 callpeak -t $chip_bam -c $input_bam -g hs -f BAM -n chip
-    mv chip_peaks.narrowPeak peaks.narrowPeak
+    mv chip_peaks.narrowPeak ${prefix}.peaks.narrowPeak
     """
 }
 
@@ -75,14 +78,15 @@ process makeCpmTrack {
         path bam
         path bai
         val kind
+        val prefix
         path blacklist
         val binsize
         val fragsize
     output:
-        path "${kind}_track.bw"
+        path "${prefix}.${kind}.bw"
     script:
     """
-    bamCoverage -b $bam -o ${kind}_track.bw -p 2 --normalizeUsing CPM --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCoverage -b $bam -o ${prefix}.${kind}.bw -p 2 --normalizeUsing CPM --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
     """
 }
 
@@ -96,21 +100,25 @@ process makeRatioTrack {
         path bai_chip
         path bam_input
         path bai_input
+        val prefix
         path blacklist
         val binsize
         val fragsize
     output:
-        path "ratio_track.bw"
+        path "${prefix}.ratio.bw"
     script:
     """
-    bamCompare -b1 $bam_chip -b2 $bam_input -o ratio_track.bw -p 2 --normalizeUsing CPM --operation log2 --scaleFactorsMethod None --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCompare -b1 $bam_chip -b2 $bam_input -o ${prefix}.ratio.bw -p 2 --normalizeUsing CPM --operation log2 --scaleFactorsMethod None --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
     """
 }
 
 params.samplesheet = './samplesheet.csv'
 params.blacklist = './assets/hg19-blacklist.v2.bed'
-params.binsize = 1000
 params.outdir = "./results"
+params.prefix = 'sample'
+params.binsize = 1000
+params.callpeaks = true
+params.extreads = true
 
 workflow {
     ch_bams = Channel.fromPath('./samplesheet.csv').splitCsv(header:true)
@@ -118,10 +126,20 @@ workflow {
     bam_input = ch_bams.filter { it.type == 'input' }.map { row -> file(row.path) }
     blacklist = Channel.fromPath(params.blacklist)
     
-    makePeakModel(bam_chip)
-    plotPeakModel(makePeakModel.out)
-    getFragmentSize(makePeakModel.out)
-    callPeaks(bam_chip, bam_input)
-    makeCpmTrack(ch_bams.map {row -> file(row.path)}, ch_bams.map {row -> file("${row.path}.bai")}, ch_bams.map { row -> row.type }, blacklist.first(), params.binsize, getFragmentSize.out.fragment_size.first())
-    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, blacklist.first(), params.binsize, getFragmentSize.out.fragment_size.first())
+    if (params.extreads) {
+        makePeakModel(bam_chip)
+        plotPeakModel(makePeakModel.out, params.prefix)
+        getFragmentSize(makePeakModel.out, params.prefix)
+        fragment_size = getFragmentSize.out.fragment_size.first()
+    }
+    else {
+        fragment_size = Channel.value(0) // No read extension
+    }
+
+    if (params.callpeaks) {
+        callPeaks(bam_chip, bam_input, params.prefix)
+    }
+
+    makeCpmTrack(ch_bams.map {row -> file(row.path)}, ch_bams.map {row -> file("${row.path}.bai")}, ch_bams.map { row -> row.type }, params.prefix, blacklist.first(), params.binsize, fragment_size)
+    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, params.prefix, blacklist.first(), params.binsize, fragment_size)
 }
