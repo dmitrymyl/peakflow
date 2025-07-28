@@ -171,18 +171,22 @@ cython_debug/
 .pypirc
 
 # genomic test files
-.bam
-.sizes
-.bed
-.bai
+*.bam
+*.sizes
+*.bed
+*.bai
 
-# working directories
+# working directories and test files
 work/
 assets/
 results/
 .nextflow/
 subresults/
 results2/
+results3/
 sub.nf
+
+# Singularity and Apptainer images
+*.sif
 
 .nextflow.log.*

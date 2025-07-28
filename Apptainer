@@ -1,0 +1,9 @@
+BootStrap: docker
+From: mambaorg/micromamba:2.3.0
+%files
+    ./conda.yml /scratch/conda.yml
+%post
+    micromamba install -y -n base -f /scratch/conda.yml
+    micromamba clean -a -y
+%environment
+    export PATH="$MAMBA_ROOT_PREFIX/bin:$PATH"

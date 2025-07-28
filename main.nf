@@ -3,7 +3,7 @@
 
 // Runs MACS2 to build the peak model and predict fragment size
 process makePeakModel {
-//    container 'oras://community.wave.seqera.io/library/deeptools_macs2_python_r-base:8454a235341a6609'
+    container 'peakflowenv.sif'
     conda './conda.yml'
     
     input:
@@ -19,6 +19,7 @@ process makePeakModel {
 // Parses R script from MACS2 to obtain the fragment size, saves it to a file and emits to stdout
 process getFragmentSize {
     publishDir "${params.outdir}", mode: 'copy'
+    container 'peakflowenv.sif'
     conda './conda.yml'
 
     input:
@@ -37,6 +38,7 @@ process getFragmentSize {
 // Runs R script from MACS2 to create pdf with the peak model
 process plotPeakModel {
     publishDir "${params.outdir}", mode: 'copy'
+    container 'peakflowenv.sif'
     conda './conda.yml'
     
     input:
@@ -54,6 +56,7 @@ process plotPeakModel {
 // Runs MACS2 to call peaks
 process callPeaks {
     publishDir "${params.outdir}", mode: 'copy'
+    container 'peakflowenv.sif'
     conda './conda.yml'
 
     input:
@@ -72,6 +75,7 @@ process callPeaks {
 // Runs deeptools bamCoverage to get CPM bigwigs
 process makeCpmTrack {
     publishDir "${params.outdir}", mode: 'copy'
+    container 'peakflowenv.sif'
     conda './conda.yml'
 
     input:
@@ -93,6 +97,7 @@ process makeCpmTrack {
 // Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
 process makeRatioTrack {
     publishDir "${params.outdir}", mode: 'copy'
+    container 'peakflowenv.sif'
     conda './conda.yml'
 
     input:
