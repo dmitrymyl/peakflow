@@ -59,13 +59,9 @@ All bigwig tracks are binned and have reads extended to the fragment size.
 
 There are two ways to manage dependencies in this pipeline: a conda environment and a singularity container.
 
+### Apptainer/Singularity container
+
+See `Apptainer` definition file to build a container yourself.
+
 ### Conda environment
-conda environment file is `conda.yml`. Conda is a default option.
-
-### Singularity container
-
-Currently doesn't work due to MACS2 build being non-functional.
-
-container page link: [`https://wave.seqera.io/view/builds/bd-8454a235341a6609_1?_gl=1*1h2mgbm*_gcl_au*MTY2MDkzNDM2NS4xNzUzMzY1NzM2`](https://wave.seqera.io/view/builds/bd-8454a235341a6609_1?_gl=1*1h2mgbm*_gcl_au*MTY2MDkzNDM2NS4xNzUzMzY1NzM2)
-
-container image link: `oras://community.wave.seqera.io/library/deeptools_macs2_python_r-base:8454a235341a6609`
+conda environment file is `conda.yml`.
