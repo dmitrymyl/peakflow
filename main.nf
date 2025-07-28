@@ -18,7 +18,7 @@ process makePeakModel {
 
 // Parses R script from MACS2 to obtain the fragment size
 process getFragmentSize {
-    publishDir 'results', mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
 
     input:
@@ -35,7 +35,7 @@ process getFragmentSize {
 
 // Runs R script from MACS2 to create pdf with the peak model
 process plotPeakModel {
-    publishDir 'results', mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
     
     input:
@@ -51,7 +51,7 @@ process plotPeakModel {
 
 // Runs MACS2 to call peaks
 process callPeaks {
-    publishDir 'results', mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
 
     input:
@@ -68,7 +68,7 @@ process callPeaks {
 
 // Runs deeptools bamCoverage to get CPM bigwigs
 process makeCpmTrack {
-    publishDir 'results', mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
 
     input:
@@ -88,7 +88,7 @@ process makeCpmTrack {
 
 // Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
 process makeRatioTrack {
-    publishDir 'results', mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
 
     input:
@@ -110,6 +110,7 @@ process makeRatioTrack {
 params.samplesheet = './samplesheet.csv'
 params.blacklist = './assets/hg19-blacklist.v2.bed'
 params.binsize = 1000
+params.outdir = "./results"
 
 workflow {
     ch_bams = Channel.fromPath('./samplesheet.csv').splitCsv(header:true)

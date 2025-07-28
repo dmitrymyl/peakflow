@@ -1,0 +1,6 @@
+{
+    "samplesheet": "./samplesheet.csv",
+    "blacklist": "./assets/hg19-blacklist.v2.bed",
+    "binsize": 1000,
+    "outdir": "./results"
+}
