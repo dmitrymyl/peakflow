@@ -17,14 +17,19 @@ process makePeakModel {
 }
 
 // Parses R script from MACS2 to obtain the fragment size
-process getPeakSize {
+process getFragmentSize {
+    publishDir 'results', mode: 'copy'
+    conda './conda.yml'
+
     input:
         path model_script
     output:
-        stdout
+        path 'fragment_size.txt'
+        stdout emit: fragment_size
     script:
     """
-    parse_model_script.py $model_script
+    parse_model_script.py $model_script > fragment_size.txt
+    cat fragment_size.txt
     """
 }
 
@@ -69,10 +74,10 @@ process makeCpmTrack {
     input:
         path bam
         path bai
+        val kind
         path blacklist
         val binsize
         val fragsize
-        val kind
     output:
         path "${kind}_track.bw"
     script:
@@ -102,31 +107,20 @@ process makeRatioTrack {
     """
 }
 
-params.bamchip = './assets/sample.chip.chr20.bam'
-params.baminput = './assets/sample.input.chr20.bam'
+params.samplesheet = './samplesheet.csv'
 params.blacklist = './assets/hg19-blacklist.v2.bed'
 params.binsize = 1000
-params.callpeaks = true
 
 workflow {
-    bam_chip = Channel.fromPath(params.bamchip)
-    bam_input = Channel.fromPath(params.baminput)
+    ch_bams = Channel.fromPath('./samplesheet.csv').splitCsv(header:true)
+    bam_chip = ch_bams.filter { it.type == 'chip' }.map { row -> file(row.path) }
+    bam_input = ch_bams.filter { it.type == 'input' }.map { row -> file(row.path) }
     blacklist = Channel.fromPath(params.blacklist)
+    
     makePeakModel(bam_chip)
     plotPeakModel(makePeakModel.out)
-    getPeakSize(makePeakModel.out)
-
-    if (params.callpeaks) {
-        callPeaks(bam_chip, bam_input)
-    }
-
-    makeCpmTrack(bam_chip, bam_chip.map{"${it}.bai"}, blacklist, params.binsize, getPeakSize.out, 'chip')
-    // makeCpmTrack(bam_input, bam_input.map{"${it}.bai"}, blacklist, params.binsize, getPeakSize.out, 'input')
-    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, blacklist, params.binsize, getPeakSize.out)
-
-/*
-    makeCpmTrack(bam_files)
-    makeRatioTrack(bam_files)
-*/
-
+    getFragmentSize(makePeakModel.out)
+    callPeaks(bam_chip, bam_input)
+    makeCpmTrack(ch_bams.map {row -> file(row.path)}, ch_bams.map {row -> file("${row.path}.bai")}, ch_bams.map { row -> row.type }, blacklist.first(), params.binsize, getFragmentSize.out.fragment_size.first())
+    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, blacklist.first(), params.binsize, getFragmentSize.out.fragment_size.first())
 }

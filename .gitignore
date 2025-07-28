@@ -181,5 +181,7 @@ work/
 assets/
 results/
 .nextflow/
+subresults/
+sub.nf
 
 .nextflow.log.*
