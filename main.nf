@@ -16,7 +16,7 @@ process makePeakModel {
     """
 }
 
-// Parses R script from MACS2 to obtain the fragment size
+// Parses R script from MACS2 to obtain the fragment size, saves it to a file and emits to stdout
 process getFragmentSize {
     publishDir "${params.outdir}", mode: 'copy'
     conda './conda.yml'
