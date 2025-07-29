@@ -114,7 +114,7 @@ params.callpeaks = true
 params.extreads = true
 
 workflow {
-    ch_bams = Channel.fromPath('./samplesheet.csv').splitCsv(header:true)
+    ch_bams = Channel.fromPath(params.samplesheet).splitCsv(header:true)
     bam_chip = ch_bams.filter { it.type == 'chip' }.map { row -> file(row.path) }
     bam_input = ch_bams.filter { it.type == 'input' }.map { row -> file(row.path) }
     blacklist = Channel.fromPath(params.blacklist)
