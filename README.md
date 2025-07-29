@@ -65,3 +65,13 @@ The Apptainer/Singularity container is available at `oras://docker.io/dmitrymyl/
 
 ### Conda environment
 conda environment file is `conda.yml`.
+
+## Development
+
+### Hosting singularity containers on dockerhub
+
+Two step process: login and push.
+```
+apptainer remote login --username dh-user oras://docker.io
+apptainer push container.sif oras://docker.io/dh-user/container:tag
+```
