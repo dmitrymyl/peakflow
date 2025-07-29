@@ -3,6 +3,7 @@
 
 // Runs MACS2 to build the peak model and predict fragment size
 process makePeakModel {
+    label 'quick'
     
     input:
         path chip_bam
@@ -17,6 +18,7 @@ process makePeakModel {
 // Parses R script from MACS2 to obtain the fragment size, saves it to a file and emits to stdout
 process getFragmentSize {
     publishDir "${params.outdir}", mode: 'copy'
+    label 'quick'
 
     input:
         path model_script
@@ -34,6 +36,7 @@ process getFragmentSize {
 // Runs R script from MACS2 to create pdf with the peak model
 process plotPeakModel {
     publishDir "${params.outdir}", mode: 'copy'
+    label 'quick'
     
     input:
         path model_script
@@ -50,6 +53,7 @@ process plotPeakModel {
 // Runs MACS2 to call peaks
 process callPeaks {
     publishDir "${params.outdir}", mode: 'copy'
+    label 'peaks'
 
     input:
         path chip_bam
@@ -67,6 +71,7 @@ process callPeaks {
 // Runs deeptools bamCoverage to get CPM bigwigs
 process makeCpmTrack {
     publishDir "${params.outdir}", mode: 'copy'
+    label 'tracks'
 
     input:
         path bam
@@ -80,13 +85,14 @@ process makeCpmTrack {
         path "${prefix}.${kind}.bw"
     script:
     """
-    bamCoverage -b $bam -o ${prefix}.${kind}.bw -p 2 --normalizeUsing CPM --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCoverage -b $bam -o ${prefix}.${kind}.bw -p $task.cpus --normalizeUsing CPM --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
     """
 }
 
 // Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
 process makeRatioTrack {
     publishDir "${params.outdir}", mode: 'copy'
+    label 'tracks'
 
     input:
         path bam_chip
@@ -101,7 +107,7 @@ process makeRatioTrack {
         path "${prefix}.ratio.bw"
     script:
     """
-    bamCompare -b1 $bam_chip -b2 $bam_input -o ${prefix}.ratio.bw -p 2 --normalizeUsing CPM --operation log2 --scaleFactorsMethod None --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCompare -b1 $bam_chip -b2 $bam_input -o ${prefix}.ratio.bw -p $task.cpus --normalizeUsing CPM --operation log2 --scaleFactorsMethod None --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
     """
 }
 
