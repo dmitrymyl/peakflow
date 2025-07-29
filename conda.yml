@@ -6,3 +6,4 @@ dependencies:
 - macs2=2.2.9.1=py310h7c593f9_1
 - python=3.10.8
 - r-base=4.3.1
+- procps-ng
