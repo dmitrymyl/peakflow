@@ -57,11 +57,11 @@ All bigwig tracks are binned and have reads extended to the fragment size.
 
 ## Software dependencies
 
-There are two ways to manage dependencies in this pipeline: a conda environment and a singularity container.
+There are two ways to manage dependencies in this pipeline: a conda environment and a container. The container is the prefered option to use.
 
 ### Apptainer/Singularity container
 
-See `Apptainer` definition file to build a container yourself.
+The Apptainer/Singularity container is available at `oras://docker.io/dmitrymyl/peakflow-apptainer:latest`. See `Apptainer` or `Dockerfile` definition file to build a container yourself.
 
 ### Conda environment
 conda environment file is `conda.yml`.
