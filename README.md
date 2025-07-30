@@ -2,7 +2,13 @@
 A simple nextflow pipeline for calling peaks and producing tracks from ChIP-seq data.
 
 ## Description
-Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment size and calls peaks with MACS2 and produces coverage tracks for ChIP, Input, and ChIP/Input ratio with deepTools. Coverage tracks are binned according to a specified bin size and have reads extended to an estimated fragment size. BAM files are treated as single-end ones, even if they are paired-end.
+Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment size and calls peaks with MACS2 and produces coverage tracks for ChIP, Input, and ChIP/Input ratio with deepTools. Coverage tracks are binned according to a specified bin size and have reads extended to an estimated fragment size. BAM files are treated as single-end ones by default, but paired-end processing can be enabled.
+
+## Get the latest version of the pipeline
+
+```
+nextflow pull dmitrymyl/peakflow
+```
 
 ## Input
 The pipeline requires two kinds of inputs: read alignment files (BAM/BAI) and parameters. Paths to read alignment files are specified in `samplesheet.csv`.
@@ -66,12 +72,6 @@ In command line, nextflow options are specified with the single hyphen (such as 
 nextflow -bg run dmitrymyl/peakflow -r main -profile cbe --samplesheet samplesheet.csv --blacklist blacklist.bed --outdir results --prefix sample
 ```
 `-bg` option allows to run nextflow in the background. `-resume` option allows to skip successful steps in case of a rerun.
-
-## Get the latest version of the pipeline
-
-```
-nextflow pull dmitrymyl/peakflow
-```
 
 ## Output
 The output directory has the following files:
