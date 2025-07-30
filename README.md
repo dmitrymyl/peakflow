@@ -41,7 +41,13 @@ nextflow run main.nf -params params.json
 ```
 
 ### How to run on CLIP CBE
-TBD
+Activate nextflow on cluster: check 6171.
+```
+```
+Run the pipeline with
+```
+nextflow run dmitrymyl/peakflow -r main --samplesheet samplesheet.csv --outdir results --blacklist hg19-blacklist.v2.bed -profile cbe -resume
+```
 
 ## Output
 The output directory has the following files:
@@ -61,7 +67,7 @@ There are two ways to manage dependencies in this pipeline: a conda environment 
 
 ### Apptainer/Singularity container
 
-The Apptainer/Singularity container is available at `oras://docker.io/dmitrymyl/peakflow-apptainer:latest`. See `Apptainer` or `Dockerfile` definition file to build a container yourself.
+The Apptainer/Singularity container is available at `oras://docker.io/gerlichlab/peakflow-apptainer:latest`. See `Apptainer` or `Dockerfile` definition file to build a container yourself.
 
 ### Conda environment
 conda environment file is `conda.yml`.

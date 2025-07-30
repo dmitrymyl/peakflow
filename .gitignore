@@ -184,6 +184,8 @@ results/
 subresults/
 results2/
 results3/
+results4/
+null/
 sub.nf
 
 # Singularity and Apptainer images
