@@ -26,7 +26,7 @@ The pipeline has the following parameters:
 |-------------|-----------------|------------------------------------|----------------------------------------------------|
 | samplesheet | file path (csv) | `"./samplesheet.csv"`              | Path to the samplesheet                            |
 | blacklist   | file path (bed) | `"./assets/hg19-blacklist.v2.bed"` | Path to the blacklist file                         |
-| outdir      | file path       | `"./results"`                      | Path to the output directory                       |
+| outdir      | file path       | `null`                             | Path to the output directory                       |
 | prefix      | string          | `"sample"`                         | Filename prefix to start output files with         |
 | binsize     | integer         | `1000`                             | Size of bins for coverage tracks                   |
 | callpeaks   | boolean         | `true`                             | Whether to call peaks or not                       |
@@ -35,29 +35,50 @@ The pipeline has the following parameters:
 Parameters are supplied as a json file. An example can be found at `params.json`.
 
 ## How to run
-TBD
+
+### Basic run
 ```{bash}
-nextflow run main.nf -params params.json
+nextflow run dmitrymyl/peakflow -profile PROFILE -params-file params.json
 ```
+Available `PROFILE` values are `local` and those available form [nf-core](https://nf-co.re/configs/).
 
 ### How to run on CLIP CBE
 Activate nextflow on cluster: check 6171.
 ```
+ml build-env/f2022
+module --ignore-cache load "nextflow/23.10.1"
+export NXF_OPTS='-Xms1g -Xmx4g'
+export NXF_TEMP="/scratch/nextflow/"$USER"/nxf_temp"
+export NXF_WORK="/scratch/nextflow/"$USER"/nxf_work"
+export NXF_ANSI_LOG=false
 ```
-Run the pipeline with
+Run the pipeline with:
 ```
-nextflow run dmitrymyl/peakflow -r main --samplesheet samplesheet.csv --outdir results --blacklist hg19-blacklist.v2.bed -profile cbe -resume
+nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file params.json
+```
+
+### Useful options
+In command line, nextflow options are specified with the single hyphen (such as `-profile` or `-params`), while the workflow parameters are specified with the double hyphen (such as `--samplesheet` and all the rest available in `params.json`). For example, instead of supplying `params.json` you can specify necessary workflow parameters directly on the command line:
+```
+nextflow -bg run dmitrymyl/peakflow -r main -profile cbe --samplesheet samplesheet.csv --blacklist blacklist.bed --outdir results --prefix sample
+```
+`-bg` option allows to run nextflow in the background. `-resume` option allows to skip successful steps in case of a rerun.
+
+## Get the latest version of the pipeline
+
+```
+nextflow pull dmitrymyl/peakflow
 ```
 
 ## Output
 The output directory has the following files:
 
-1. `chip_track.bw` ChIP CPM coverage track.
-2. `input_track.bw` Input CPM coverage track.
-3. `ratio_track.bw` log2 ChIP/Input CPM ratio track.
-4. `peaks.narrowPeak` MACS2 peaks.
-5. `model.pdf` peak model plot produced by MACS2. 
-6. `fragment_size.txt` estimated fragment size as a single number.
+1. `prefix.chip_track.bw` ChIP CPM coverage track.
+2. `prefix.input_track.bw` Input CPM coverage track.
+3. `prefix.ratio_track.bw` log2 ChIP/Input CPM ratio track.
+4. `prefix.peaks.narrowPeak` MACS2 peaks.
+5. `prefix.model.pdf` peak model plot produced by MACS2. 
+6. `prefix.fragment_size.txt` estimated fragment size as a single number.
 
 All bigwig tracks are binned and have reads extended to the fragment size.
 
