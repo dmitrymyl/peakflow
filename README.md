@@ -43,7 +43,7 @@ nextflow run dmitrymyl/peakflow -profile PROFILE -params-file params.json
 Available `PROFILE` values are `local` and those available form [nf-core](https://nf-co.re/configs/).
 
 ### How to run on CLIP CBE
-Activate nextflow on cluster: check 6171.
+Activate nextflow:
 ```
 ml build-env/f2022
 module --ignore-cache load "nextflow/23.10.1"
@@ -56,6 +56,7 @@ Run the pipeline with:
 ```
 nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file params.json
 ```
+Profile `cbe` makes the pipeline use slurm for job submission and resource management.
 
 ### Useful options
 In command line, nextflow options are specified with the single hyphen (such as `-profile` or `-params`), while the workflow parameters are specified with the double hyphen (such as `--samplesheet` and all the rest available in `params.json`). For example, instead of supplying `params.json` you can specify necessary workflow parameters directly on the command line:
@@ -84,14 +85,14 @@ All bigwig tracks are binned and have reads extended to the fragment size.
 
 ## Software dependencies
 
-There are two ways to manage dependencies in this pipeline: a conda environment and a container. The container is the prefered option to use.
+There are two ways to manage dependencies in this pipeline: a conda environment and a container. The container is the recommended option to run the pipeline.
 
 ### Apptainer/Singularity container
 
-The Apptainer/Singularity container is available at `oras://docker.io/gerlichlab/peakflow-apptainer:latest`. See `Apptainer` or `Dockerfile` definition file to build a container yourself.
+The Apptainer/Singularity container is available at `oras://docker.io/gerlichlab/peakflow-apptainer:latest`. See `Apptainer` or `Dockerfile` definition file to build a container yourself. When running, nextflow automatically downloads the container.
 
 ### Conda environment
-conda environment file is `conda.yml`.
+conda environment specification file is `conda.yml`. When running, nextflow creates a conda environment based on this specification
 
 ## Development
 
