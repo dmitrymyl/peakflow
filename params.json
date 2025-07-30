@@ -5,5 +5,7 @@
     "prefix": "sample",
     "binsize": 1000,
     "callpeaks": true,
-    "extreads": true
+    "extreads": true,
+    "effgsize": 2864785220,
+    "pairedend": false
 }

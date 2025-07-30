@@ -7,11 +7,13 @@ process makePeakModel {
     
     input:
         path chip_bam
+        val effgsize
+        val format
     output:
         path 'model.R'
     script:
     """
-    macs2 predictd -i $chip_bam -f BAM -g hs --rfile model.R
+    macs2 predictd -i $chip_bam -f $format -g $effgsize --rfile model.R
     """
 }
 
@@ -59,11 +61,13 @@ process callPeaks {
         path chip_bam
         path input_bam
         val prefix
+        val effgsize
+        val format
     output:
         path "${prefix}.peaks.narrowPeak"
     script:
     """
-    macs2 callpeak -t $chip_bam -c $input_bam -g hs -f BAM -n chip
+    macs2 callpeak -t $chip_bam -c $input_bam -g $effgsize -f $format -n chip
     mv chip_peaks.narrowPeak ${prefix}.peaks.narrowPeak
     """
 }
@@ -81,11 +85,20 @@ process makeCpmTrack {
         path blacklist
         val binsize
         val fragsize
+        val effgsize
     output:
         path "${prefix}.${kind}.bw"
     script:
     """
-    bamCoverage -b $bam -o ${prefix}.${kind}.bw -p $task.cpus --normalizeUsing CPM --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCoverage -b $bam \
+                -o ${prefix}.${kind}.bw \
+                -p $task.cpus \
+                --normalizeUsing CPM \
+                --blackListFileName $blacklist \
+                --binSize $binsize \
+                --extendReads $fragsize \
+                --ignoreDuplicates \
+                --effectiveGenomeSize $effgsize
     """
 }
 
@@ -103,11 +116,23 @@ process makeRatioTrack {
         path blacklist
         val binsize
         val fragsize
+        val effgsize
     output:
         path "${prefix}.ratio.bw"
     script:
     """
-    bamCompare -b1 $bam_chip -b2 $bam_input -o ${prefix}.ratio.bw -p $task.cpus --normalizeUsing CPM --operation log2 --scaleFactorsMethod None --blackListFileName $blacklist --binSize $binsize --extendReads $fragsize --ignoreDuplicates
+    bamCompare -b1 $bam_chip \
+               -b2 $bam_input \
+               -o ${prefix}.ratio.bw \
+               -p $task.cpus \
+               --normalizeUsing CPM \
+               --operation log2 \
+               --scaleFactorsMethod None \
+               --blackListFileName $blacklist \
+               --binSize $binsize \
+               --extendReads $fragsize \
+               --ignoreDuplicates \
+               --effectiveGenomeSize $effgsize
     """
 }
 
@@ -118,15 +143,24 @@ params.prefix = 'sample'
 params.binsize = 1000
 params.callpeaks = true
 params.extreads = true
+params.effgsize = 2864785220
+params.pairedend = false
 
 workflow {
     ch_bams = Channel.fromPath(params.samplesheet).splitCsv(header:true)
     bam_chip = ch_bams.filter { it.type == 'chip' }.map { row -> file(row.path) }
     bam_input = ch_bams.filter { it.type == 'input' }.map { row -> file(row.path) }
     blacklist = Channel.fromPath(params.blacklist)
+
+    if (params.pairedend) {
+        bam_format = "BAMPE"
+    }
+    else {
+        bam_format = "BAM"
+    }
     
     if (params.extreads) {
-        makePeakModel(bam_chip)
+        makePeakModel(bam_chip, params.effgsize, bam_format)
         plotPeakModel(makePeakModel.out, params.prefix)
         getFragmentSize(makePeakModel.out, params.prefix)
         fragment_size = getFragmentSize.out.fragment_size.first()
@@ -136,9 +170,9 @@ workflow {
     }
 
     if (params.callpeaks) {
-        callPeaks(bam_chip, bam_input, params.prefix)
+        callPeaks(bam_chip, bam_input, params.prefix, params.effgsize, bam_format)
     }
 
-    makeCpmTrack(ch_bams.map {row -> file(row.path)}, ch_bams.map {row -> file("${row.path}.bai")}, ch_bams.map { row -> row.type }, params.prefix, blacklist.first(), params.binsize, fragment_size)
-    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, params.prefix, blacklist.first(), params.binsize, fragment_size)
+    makeCpmTrack(ch_bams.map {row -> file(row.path)}, ch_bams.map {row -> file("${row.path}.bai")}, ch_bams.map { row -> row.type }, params.prefix, blacklist.first(), params.binsize, fragment_size, params.effgsize)
+    makeRatioTrack(bam_chip, bam_chip.map{"${it}.bai"}, bam_input, bam_input.map{"${it}.bai"}, params.prefix, blacklist.first(), params.binsize, fragment_size, params.effgsize)
 }
