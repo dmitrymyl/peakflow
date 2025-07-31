@@ -66,6 +66,8 @@ nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file params.jso
 ```
 Profile `cbe` makes the pipeline use slurm for job submission and resource management.
 
+Script file `run_cluster.sh` contains all the commands above and sends an email upon pipeline termination. You can download this script, modify it accordingly and run it yourself.
+
 ### Useful options
 In command line, nextflow options are specified with the single hyphen (such as `-profile` or `-params`), while the workflow parameters are specified with the double hyphen (such as `--samplesheet` and all the rest available in `params.json`). For example, instead of supplying `params.json` you can specify necessary workflow parameters directly on the command line:
 ```
