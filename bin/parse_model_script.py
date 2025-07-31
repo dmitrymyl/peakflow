@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+## Originally written by Dmitry Mylarshchikov and released under the MIT license.
+## See git repository (https://github.com/dmitrymyl/peakflow) for full license text.
+
 import re
 from sys import argv
 
