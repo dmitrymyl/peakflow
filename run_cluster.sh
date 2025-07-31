@@ -15,4 +15,4 @@ NOTIFICATION_EMAIL=${USER}@imba.oeaw.ac.at
 PARAMS_FILE="./params.json"
 
 # Run the peakflow pipeline
-nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file $PARAMS_FILE -N $NOTIFICATION_EMAIL
+nohup nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file $PARAMS_FILE -N $NOTIFICATION_EMAIL
