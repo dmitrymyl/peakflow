@@ -52,6 +52,29 @@ process plotPeakModel {
     """
 }
 
+process getPeakModelFragmentSize {
+    publishDir "${params.outdir}", mode: 'copy'
+    label 'quick'  // This process is supposed to run very quickly
+
+    input:
+        path chip_bam   // ChIP BAM file
+        val  effgsize   // Effective genome size for normalization
+        val  format     // Format of the BAM files (i.e., 'BAM' for single-end or 'BAMPE' for paired-end)
+        val  prefix     // Prefix for output files
+    output:
+        path "${prefix}.fragment_size.txt"  // Output file with fragment size
+        path "${prefix}.model.pdf"  // Output PDF with the peak model plot
+        stdout emit: fragment_size           // Fragment size value emitted to stdout
+    script:
+    """
+    macs2 predictd -i $chip_bam -f $format -g $effgsize --rfile model.R
+    parse_model_script.py model.R > ${prefix}.fragment_size.txt
+    cat ${prefix}.fragment_size.txt
+    Rscript model.R > /dev/null
+    mv model.R_model.pdf ${prefix}.model.pdf
+    """
+}
+
 // Runs MACS2 to call peaks
 process callPeaks {
     publishDir "${params.outdir}", mode: 'copy'
@@ -162,6 +185,7 @@ workflow {
     }
     
     if (params.extreads) {
+/*
         makePeakModel(
                      bam_chip,
                      params.effgsize,
@@ -177,8 +201,17 @@ workflow {
                        makePeakModel.out,
                        params.prefix
                        )
+*/
 
-        fragment_size = getFragmentSize.out.fragment_size.first()
+        getPeakModelFragmentSize(
+                         bam_chip,
+                         params.effgsize,
+                         bam_format,
+                         params.prefix
+                         )
+        fragment_size = getPeakModelFragmentSize.out.fragment_size.first()
+
+        // fragment_size = getFragmentSize.out.fragment_size.first()
     }
     else {
         fragment_size = Channel.value(0) // No read extension
