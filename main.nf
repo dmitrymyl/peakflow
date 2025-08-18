@@ -27,7 +27,7 @@ process getPeakModelFragmentSize {
 // Runs MACS2 to call peaks
 process callPeaks {
     publishDir "${params.outdir}", mode: 'copy'
-    label 'peaks'  // This process is supposed to run for a longer time, as it calls peaks
+    label 'peaks'  // This process is supposed to run for a longer time and consume more RAM
 
     input:
         path chip_bam   // ChIP BAM file
@@ -47,7 +47,7 @@ process callPeaks {
 // Runs deeptools bamCoverage to get CPM bigwigs
 process makeCpmTrack {
     publishDir "${params.outdir}", mode: 'copy'
-    label 'tracks'  // This process is supposed to run for a longer time, as it generates bigwig files
+    label 'tracks'  // This process is supposed to be parallelized
 
     input:
         path bam        // BAM file to be converted to bigwig
@@ -77,7 +77,7 @@ process makeCpmTrack {
 // Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
 process makeRatioTrack {
     publishDir "${params.outdir}", mode: 'copy'
-    label 'tracks'  // This process is supposed to run for a longer time, as it generates bigwig files
+    label 'tracks'  // This process is supposed to be parallelized
 
     input:
         path bam_chip   // ChIP BAM file
