@@ -44,6 +44,23 @@ process callPeaks {
     """
 }
 
+// Filter peaks by blacklist
+process filterPeaksByBlacklist {
+    publishDir "${params.outdir}", mode: 'copy'
+    label 'quick'  // This process is supposed to run very quickly
+
+    input:
+        path peaks       // Peaks file in narrowPeak format
+        path blacklist   // Blacklist file to filter out regions
+        val  prefix      // Prefix for output files
+    output:
+        path "${prefix}.peaks_noblacklist.narrowPeak"  // Output filtered peaks file
+    script:
+    """
+    bedtools intersect -v -a $peaks -b $blacklist > ${prefix}.peaks_noblacklist.narrowPeak
+    """
+}
+
 // Runs deeptools bamCoverage to get CPM bigwigs
 process makeCpmTrack {
     publishDir "${params.outdir}", mode: 'copy'
@@ -155,6 +172,11 @@ workflow {
                  params.effgsize,
                  bam_format
                  )
+        filterPeaksByBlacklist(
+                              callPeaks.out,
+                              blacklist.first(),
+                              params.prefix
+                              )
     }
 
     if (params.maketracks) {

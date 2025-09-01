@@ -82,8 +82,9 @@ The output directory has the following files:
 2. `prefix.input_track.bw` Input CPM coverage track.
 3. `prefix.ratio_track.bw` log2 ChIP/Input CPM ratio track.
 4. `prefix.peaks.narrowPeak` MACS2 peaks.
-5. `prefix.model.pdf` peak model plot produced by MACS2. 
-6. `prefix.fragment_size.txt` estimated fragment size as a single number.
+5. `prefix.peaks_noblacklist.narrowPeak` MACS2 peaks filtered by blacklist.
+6. `prefix.model.pdf` peak model plot produced by MACS2. 
+7. `prefix.fragment_size.txt` estimated fragment size as a single number.
 
 All bigwig tracks are binned and have reads extended to the fragment size.
 
