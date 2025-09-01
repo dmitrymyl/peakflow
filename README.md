@@ -37,7 +37,7 @@ The pipeline has the following parameters:
 | binsize     | integer         | `1000`                             | Size of bins for coverage tracks                   |
 | callpeaks   | boolean         | `true`                             | Whether to call peaks or not                       |
 | extreads    | boolean         | `true`                             | Whether to extend reads for coverage tracks or not |
-| effgsize    | integer         | `2864785220`                       | Effective genome size (default is one for hg19)    |
+| effgsize    | integer         | `2736124898`                       | Effective genome size (default is one for hg19)    |
 | pairedend   | boolean         | `false`                            | If the sample is paired-end or single-end          |
 
 Parameters are supplied as a json file. An example can be found at `params.json`.

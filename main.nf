@@ -116,8 +116,9 @@ params.outdir      = "./results"                       // Path to the output fol
 params.prefix      = 'sample'                          // Prefix for output files
 params.binsize     = 1000                              // Bin size for bigwig files
 params.callpeaks   = true                              // Whether to call peaks or not
+params.maketracks  = true                              // Whether to make bigwig tracks or not
 params.extreads    = true                              // Whether to extend reads based on fragment size
-params.effgsize    = 2864785220                        // Effective genome size for normalization (hg19 by default)
+params.effgsize    = 2736124898                        // Effective genome size for normalization (hg19 by default)
 params.pairedend   = false                             // Whether the input BAM files are paired-end or single-end
 
 workflow {
@@ -156,26 +157,29 @@ workflow {
                  )
     }
 
-    makeCpmTrack(
-                ch_bams.map {row -> file(row.path)},
-                ch_bams.map {row -> file("${row.path}.bai")},
-                ch_bams.map { row -> row.type },
-                params.prefix,
-                blacklist.first(),
-                params.binsize,
-                fragment_size,
-                params.effgsize
-                )
+    if (params.maketracks) {
 
-    makeRatioTrack(
-                  bam_chip,
-                  bam_chip.map{"${it}.bai"},
-                  bam_input,
-                  bam_input.map{"${it}.bai"},
-                  params.prefix,
-                  blacklist.first(),
-                  params.binsize,
-                  fragment_size,
-                  params.effgsize
-                  )
+        makeCpmTrack(
+                    ch_bams.map {row -> file(row.path)},
+                    ch_bams.map {row -> file("${row.path}.bai")},
+                    ch_bams.map { row -> row.type },
+                    params.prefix,
+                    blacklist.first(),
+                    params.binsize,
+                    fragment_size,
+                    params.effgsize
+                    )
+
+        makeRatioTrack(
+                      bam_chip,
+                      bam_chip.map{"${it}.bai"},
+                      bam_input,
+                      bam_input.map{"${it}.bai"},
+                      params.prefix,
+                      blacklist.first(),
+                      params.binsize,
+                      fragment_size,
+                      params.effgsize
+                      )
+    }
 }
