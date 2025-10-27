@@ -91,41 +91,41 @@ process makeCpmTrack {
     """
 }
 
-// // Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
-// process makeRatioTrack {
-//     publishDir "${params.outdir}", mode: 'copy'
-//     label 'tracks'  // This process is supposed to be parallelized
+// Runs deeptools bamCompare to get log2 ratio of ChIP and Input CPMs
+process makeRatioTrack {
+    publishDir "${params.outdir}", mode: 'copy'
+    label 'tracks'  // This process is supposed to be parallelized
 
-//     input:
-//         path bam_chip   // ChIP BAM file
-//         path bai_chip   // ChIP BAM index file
-//         path bam_input  // Input BAM file
-//         path bai_input  // Input BAM index file
-//         val  prefix     // Prefix for output files
-//         path blacklist  // Blacklist file
-//         val  binsize    // Bin size for bigwig files
-//         val  fragsize   // Fragment size for read extension
-//         val  effgsize   // Effective genome size for normalization
+    input:
+        path bam_chip   // ChIP BAM file
+        path bai_chip   // ChIP BAM index file
+        path bam_input  // Input BAM file
+        path bai_input  // Input BAM index file
+        val  prefix     // Prefix for output files
+        path blacklist  // Blacklist file
+        val  binsize    // Bin size for bigwig files
+        val  fragsize   // Fragment size for read extension
+        val  effgsize   // Effective genome size for normalization
 
-//     output:
-//         path "${prefix}.ratio.bw"  // Output bigwig file with log2 ratio
+    output:
+        path "${prefix}.ratio.bw"  // Output bigwig file with log2 ratio
 
-//     script:
-//     """
-//     bamCompare -b1 $bam_chip \
-//                -b2 $bam_input \
-//                -o ${prefix}.ratio.bw \
-//                -p $task.cpus \
-//                --normalizeUsing CPM \
-//                --operation log2 \
-//                --scaleFactorsMethod None \
-//                --blackListFileName $blacklist \
-//                --binSize $binsize \
-//                --extendReads $fragsize \
-//                --ignoreDuplicates \
-//                --effectiveGenomeSize $effgsize
-//     """
-// }
+    script:
+    """
+    bamCompare -b1 $bam_chip \
+               -b2 $bam_input \
+               -o ${prefix}.ratio.bw \
+               -p $task.cpus \
+               --normalizeUsing CPM \
+               --operation log2 \
+               --scaleFactorsMethod None \
+               --blackListFileName $blacklist \
+               --binSize $binsize \
+               --extendReads $fragsize \
+               --ignoreDuplicates \
+               --effectiveGenomeSize $effgsize
+    """
+}
 
 // Runs deeptools bamCompare to get difference of ChIP and Input CPMs
 process makeDifferenceTrack {
@@ -239,5 +239,17 @@ workflow {
                            fragment_size,
                            params.effgsize
                            )
+        
+        makeRatioTrack(
+                       bam_chip,
+                       bam_chip.map{ "${it}.bai" },
+                       bam_input,
+                       bam_input.map{ "${it}.bai" },
+                       params.prefix,
+                       blacklist.first(),
+                       params.binsize,
+                       fragment_size,
+                       params.effgsize
+                       )
     }
 }
