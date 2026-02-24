@@ -7,7 +7,7 @@ Given a single ChIP and a single Input BAM files, `peakflow` estimates fragment 
 ## Get the latest version of the pipeline
 
 ```
-nextflow pull dmitrymyl/peakflow
+nextflow pull gerlichlab/peakflow
 ```
 
 ## Input
@@ -46,7 +46,7 @@ Parameters are supplied as a json file. An example can be found at `params.json`
 
 ### Basic run
 ```{bash}
-nextflow run dmitrymyl/peakflow -profile PROFILE -params-file params.json
+nextflow run gerlichlab/peakflow -profile PROFILE -params-file params.json
 ```
 Available `PROFILE` values are `local` and those available form [nf-core](https://nf-co.re/configs/).
 
@@ -62,7 +62,7 @@ export NXF_ANSI_LOG=false
 ```
 Run the pipeline with:
 ```
-nextflow -bg run dmitrymyl/peakflow -r main -profile cbe -params-file params.json
+nextflow -bg run gerlichlab/peakflow -r main -profile cbe -params-file params.json
 ```
 Profile `cbe` makes the pipeline use slurm for job submission and resource management.
 
@@ -71,7 +71,7 @@ Script file `run_cluster.sh` contains all the commands above, runs the pipeline 
 ### Useful options
 In command line, nextflow options are specified with the single hyphen (such as `-profile` or `-params`), while the workflow parameters are specified with the double hyphen (such as `--samplesheet` and all the rest available in `params.json`). For example, instead of supplying `params.json` you can specify necessary workflow parameters directly on the command line:
 ```
-nextflow -bg run dmitrymyl/peakflow -r main -profile cbe --samplesheet samplesheet.csv --blacklist blacklist.bed --outdir results --prefix sample
+nextflow -bg run gerlichlab/peakflow -r main -profile cbe --samplesheet samplesheet.csv --blacklist blacklist.bed --outdir results --prefix sample
 ```
 `-bg` option allows to run nextflow in the background. `-resume` option allows to skip successful steps in case of a rerun.
 
